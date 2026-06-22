@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="referrer" content="no-referrer">
+<title>Open Brain — Authorize</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    background: #0a0a0a;
+    color: #e0e0e0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 1rem;
+  }
+  .card {
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 12px;
+    padding: 2rem;
+    max-width: 400px;
+    width: 100%;
+  }
+  h1 { margin: 0 0 0.5rem; font-size: 1.4rem; color: #fff; }
+  p { color: #999; font-size: 0.9rem; margin: 0 0 1.5rem; }
+  label { display: block; font-size: 0.85rem; color: #ccc; margin-bottom: 0.4rem; }
+  input[type="password"] {
+    width: 100%;
+    padding: 0.6rem;
+    border: 1px solid #444;
+    border-radius: 6px;
+    background: #0a0a0a;
+    color: #fff;
+    font-size: 1rem;
+  }
+  button {
+    width: 100%;
+    padding: 0.7rem;
+    margin-top: 1rem;
+    border: 0;
+    border-radius: 6px;
+    background: #2563eb;
+    color: #fff;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  button:hover { background: #1d4ed8; }
+  .error { color: #f87171; margin: 0; }
+</style>
+</head>
+<body>
+<main class="card">
+  <h1>Open Brain</h1>
+  <p id="instructions">Enter your brain key to authorize access.</p>
+  <form id="authorize-form" method="POST"
+        action="https://tldynjvxbtjxjhqotvej.supabase.co/functions/v1/open-brain-mcp/oauth/authorize">
+    <label for="key">Brain Key</label>
+    <input type="password" id="key" name="key" autocomplete="current-password"
+           placeholder="Paste your brain key" required autofocus>
+    <button type="submit">Authorize</button>
+  </form>
+</main>
+
+<script>
+  const requiredParams = [
+    "client_id",
+    "redirect_uri",
+    "state",
+    "code_challenge",
+    "code_challenge_method",
+    "scope"
+  ];
+  const query = new URLSearchParams(window.location.search);
+  const form = document.getElementById("authorize-form");
+  const missing = requiredParams.filter((name) => !query.get(name));
+
+  if (missing.length > 0) {
+    form.hidden = true;
+    const message = document.getElementById("instructions");
+    message.className = "error";
+    message.textContent = "Invalid authorization request. Return to ChatGPT and reconnect the app.";
+  } else {
+    for (const name of requiredParams) {
+      const input = document.createElement("input");
+      input.type = "hidden";
+      input.name = name;
+      input.value = query.get(name);
+      form.appendChild(input);
+    }
+  }
+</script>
+</body>
+</html>
